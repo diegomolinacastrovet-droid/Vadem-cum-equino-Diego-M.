@@ -1,0 +1,2147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="theme-color" content="#000000">
+
+<link rel="manifest" href="manifest.json">
+
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Vademécum Equino Diego Molina C.</title>
+
+<style>
+
+body {
+    font-family: Arial, sans-serif;
+    background:#f3f3f3;
+    margin:0;
+    padding:20px;
+}
+
+h1 {
+    text-align:center;
+    color:#2b2b2b;
+}
+
+input {
+    width:100%;
+    padding:15px;
+    font-size:18px;
+    border-radius:12px;
+    border:1px solid #ccc;
+    box-sizing:border-box;
+}
+
+button {
+    width:100%;
+    padding:14px;
+    margin-top:10px;
+    border:none;
+    border-radius:12px;
+    font-size:17px;
+}
+
+.menu button {
+    background:#ffffff;
+}
+
+.tarjeta {
+    background:white;
+    padding:15px;
+    margin-top:12px;
+    border-radius:15px;
+    box-shadow:0 2px 6px #ccc;
+}
+
+.ficha {
+    background:white;
+    margin-top:20px;
+    padding:20px;
+    border-radius:15px;
+    display:none;
+}
+
+.titulo {
+    font-size:24px;
+    font-weight:bold;
+}
+
+.seccion {
+    margin-top:15px;
+}
+
+.favorito {
+    background:#ffe680;
+}
+
+.volver {
+    background:#ddd;
+}
+
+.oculto {
+    display:none;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div id="login" style="
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#111;
+display:flex;
+justify-content:center;
+align-items:center;
+z-index:9999;
+">
+
+<div style="
+background:white;
+padding:35px;
+border-radius:18px;
+width:320px;
+text-align:center;
+box-shadow:0 0 20px rgba(0,0,0,.4);
+">
+
+<img src="icon-192.png" width="110">
+
+<h2>Vademécum Equino</h2>
+
+<p>Acceso privado</p>
+
+<input
+id="clave"
+type="password"
+placeholder="Contraseña"
+style="margin-top:15px;">
+
+<br><br>
+
+<button onclick="ingresar()"
+style="
+padding:12px 30px;
+border:none;
+border-radius:10px;
+background:#000;
+color:white;
+font-size:18px;
+cursor:pointer;
+">
+
+Ingresar
+
+</button>
+
+<div id="error"
+style="
+display:none;
+margin-top:15px;
+padding:12px;
+background:#ffe6e6;
+color:#b30000;
+border:1px solid #ff4d4d;
+border-radius:10px;
+font-weight:bold;
+">
+❌ Contraseña incorrecta
+</div>
+
+</div>
+
+</div>
+
+
+<h1>🐴 Vademécum Equino</h1>
+
+
+<div class="menu">
+
+<button onclick="mostrarBusqueda()">
+🔍 Buscar medicamento
+</button>
+
+
+<button onclick="mostrarFavoritos()">
+⭐ Favoritos
+</button>
+
+
+<button onclick="mostrarRecientes()">
+🕒 Últimos vistos
+</button>
+
+
+<button onclick="mostrarProtocolos()">
+📋 Protocolos
+</button>
+
+</div>
+
+
+
+<div id="buscador">
+
+
+<input 
+id="busqueda"
+placeholder="Buscar medicamento..."
+>
+
+
+<div id="resultado"></div>
+
+
+</div>
+
+
+
+
+<div id="ficha" class="ficha"></div>
+
+
+
+<div id="extra"></div>
+
+
+
+<script>
+
+
+let medicamentos = [
+
+{
+nombre:"Aceite Mineral",
+dosis:"7.5 mL/kg NG dosis única o cada 12 - 24 h",
+indicacion:"Laxante",
+comentarios:""
+},
+
+{
+nombre:"Acepromacina",
+dosis:"0.02 - 0.066 mg/kg EV, IM cada 6 h",
+indicacion:"Tranquilizante, vasodilatador, tratamiento de rabdomiolisis",
+comentarios:"Puede causar parafimosis en potros"
+},
+
+{
+nombre:"Acetato de Deslorelina",
+dosis:"1.5 mg IM una vez por ciclo estral 24 h antes de la monta",
+indicacion:"Inducción de la ovulación",
+comentarios:"Dar cuando folículo alcanza 35 mm de diámetro y cuando hay buen edema uterino y relajación del cervix"
+},
+
+{
+nombre:"Acetazolamida",
+dosis:"2.5 mg/kg PO cada 12 h",
+indicacion:"Diuresis de Potasio para la prevención de Parálisis periódica hiperkalémica (HYPP)",
+comentarios:""
+},
+
+{
+nombre:"Acetilcisteína (Enema)",
+dosis:"20 mL acetilcisteína 20% + 160 mL agua tibia + 20 mg bicarbonato vía catéter foley PR por 30 minutos",
+indicacion:"Impacción de meconio",
+comentarios:""
+},
+
+{
+nombre:"Acetilcisteína (Lavado)",
+dosis:"20 - 60 mL de solución 20% instilada dentro de las bolsas guturales",
+indicacion:"Mucolítico para tratamiento de empiema de bolsas guturales",
+comentarios:"Elevar la cabeza y dejar actuar 15 minutos previo al lavado"
+},
+
+{
+nombre:"Aciclovir",
+dosis:"20 mg/kg PO cada 6 - 8 h",
+indicacion:"Antiviral, prevención y tratamiento de EHV",
+comentarios:""
+},
+
+{
+nombre:"Ácido Aminocaproico",
+dosis:"10 - 20 g/1 L NaCl/500 kg EV",
+indicacion:"Antifibrinolítico para caballos con riesgo de hemorragia severa",
+comentarios:""
+},
+
+{
+nombre:"Ácido Tiludrónico",
+dosis:"0.1 mg/kg EV; aproximadamente 1 mL de solución reconstituida/50 kg peso vivo",
+indicacion:"Inhibidor de reabsorción ósea utilizado en procesos de osteoartritis no infecciosa que cursen con reabsorción ósea",
+comentarios:"Administrar lentamente; puede causar signología tipo cólico"
+},
+
+{
+nombre:"Ácido Meclofenámico",
+dosis:"2.2 mg/kg PO cada 12 h",
+indicacion:"AINE",
+comentarios:""
+},
+
+{
+nombre:"Albuterol",
+dosis:"1 - 2 ug/kg vía inhalatoria cada 12 h; equivale a 1 - 2 dosificaciones de un aerosol de 90 ug/100 kg de peso vivo",
+indicacion:"Broncodilatador de acción corta (rescate) para tratamiento de disnea asociada a broncoconstricción, o tratamiento para síndrome de asma equino",
+comentarios:"Duración del efecto broncodilatador: 30 - 60 minutos"
+},
+
+{
+nombre:"Altrenogest",
+dosis:"0.044 - 0.088 mg/kg PO cada 12 - 24 h",
+indicacion:"Supresión del estro, sincronización del estro, acelera el inicio de la primera ovulación de la temporada, mantención de la preñez",
+comentarios:""
+},
+
+{
+nombre:"Amikacina",
+dosis:"20 - 25 mg/kg EV o IM cada 24 h",
+indicacion:"Antibiótico aminoglucósido para infecciones contra bacterias Gram negativas",
+comentarios:"Monitorear función renal"
+},
+
+{
+nombre:"Amikacina (Intraarticular y perfusión regional)",
+dosis:"Intraarticular: 500 mg - 1 g por articulación cada 24 - 48 h; Perfusión regional: 1 - 2 g en 20 - 60 mL de solución salina (dependiendo del segmento a perfundir) cada 24 - 48 h",
+indicacion:"Potrillos: artritis séptica, fisitis, osteomielitis. Adultos: artritis sépticas, infecciones articulares abiertas, osteomielitis",
+comentarios:"Torniquete proximal al área de infección. Dejar torniquete durante 30 minutos posterior a la inyección"
+},
+
+{
+nombre:"Amikacina (Reproducción)",
+dosis:"2 gramos (amortiguado con igual volumen de solución de bicarbonato de sodio 8.4%) en 60 mL NaCl IU cada 24 h por 3 - 5 días",
+indicacion:"Antibiótico",
+comentarios:""
+},
+
+{
+nombre:"Ampicilina",
+dosis:"22 mg/kg EV cada 6 h",
+indicacion:"Antibiótico betalactámico. Infecciones por bacterias Gram positivas y E. coli",
+comentarios:""
+},
+
+{
+nombre:"Ampicilina (Reproducción)",
+dosis:"3 g en 60 mL NaCl IU cada 24 h por 3 - 5 días",
+indicacion:"Antibiótico",
+comentarios:""
+},
+
+{
+nombre:"Antitoxina Tetánica",
+dosis:"10.000 UI EV (diluido) o IM",
+indicacion:"Tratamiento de tétanos",
+comentarios:""
+},
+
+{
+nombre:"Aspirina",
+dosis:"12 mg/kg PO cada 48 h",
+indicacion:"Antitrombótico",
+comentarios:""
+},
+
+{
+nombre:"Atropina (Oftalmología)",
+dosis:"0.2 mL tópico cada 2 - 48 h, según requerimientos de dilatación de la pupila",
+indicacion:"Parasimpaticolítico. Uveítis anterior, sinequia",
+comentarios:"Puede producir íleo intestinal. Controlar efectos sistémicos (suspender uso si hay midriasis del ojo contralateral)"
+},
+
+{
+nombre:"Azitromicina",
+dosis:"10 mg/kg PO cada 24 h por 5 días y luego cada 48 h",
+indicacion:"Antibiótico macrólido para el tratamiento de R. equi o Salmonella en potrillos",
+comentarios:""
+},
+
+{
+nombre:"Beclometasona",
+dosis:"500 - 1500 ug/500 kg cada 12 h",
+indicacion:"Antiinflamatorio respiratorio",
+comentarios:""
+},
+
+{
+nombre:"Betanecol",
+dosis:"0.025 - 0.1 mg/kg SC cada 6 - 8 h; 0.3 - 0.4 mg/kg PO cada 6 - 8 h",
+indicacion:"Proquinético simpaticomimético",
+comentarios:"Puede causar salivación"
+},
+
+{
+nombre:"Bicarbonato de Sodio",
+dosis:"Reemplazo (mEq) = 0.3 x déficit x peso vivo (kg); reemplazar 0.3 por 0.4 en potrillos",
+indicacion:"Tratamiento para acidosis metabólica normovolémica o hipercalemia",
+comentarios:"1 g NaHCO3 = 12 mEq"
+},
+
+{
+nombre:"Bromhexina",
+dosis:"0.2 - 0.4 mg/kg PO; 0.4 mg/kg IM/EV",
+indicacion:"Mucolítico",
+comentarios:"Biodisponibilidad es muy mala, 5% (Packer 1980)"
+},
+
+{
+nombre:"Bromuro de Ipratropio",
+dosis:"0.18 - 0.36 ug/kg o 1 - 2 dosificaciones de 20 ug/100 kg vía inhalatoria cada 6 - 24 h. Comenzar cada 12 h por 10 días, luego cada 24 h por 10 días",
+indicacion:"Parasimpaticolítico para broncodilatación para tratamiento de síndrome de asma equino",
+comentarios:""
+},
+
+{
+nombre:"Buscapina (Butilescopolamina o Hioscina)",
+dosis:"0.3 mg/kg EV (dosis única)",
+indicacion:"Espasmolítico. Analgésico para tratamiento de cólico",
+comentarios:"Contraindicado en impacciones de colon"
+},
+
+{
+nombre:"Butorfanol",
+dosis:"0.01 - 0.04 mg/kg EV; 0.02 - 0.08 mg/kg IM",
+indicacion:"Sedación/Analgesia",
+comentarios:"Utilizado en combinación con agonistas α-2; puede generar excitación"
+},
+
+{
+nombre:"Cafeína",
+dosis:"10 mg/kg (dosis inicial) PO, luego 2.5 mg/kg PO cada 12 h",
+indicacion:"Estimulación respiratoria para hipoventilación",
+comentarios:"Usado en casos de encefalopatía neonatal con elevada pCO2 marginal"
+},
+
+{
+nombre:"Carbón Activado",
+dosis:"Adulto: 500 g NG; Potrillo: 1 mg/kg NG",
+indicacion:"Adsorbente intestinal",
+comentarios:"Puede ser combinado con aceite o subsalicilato de bismuto"
+},
+
+{
+nombre:"Cefazolina",
+dosis:"20 mg/kg EV cada 6 h",
+indicacion:"Cefalosporina de primera generación con actividad contra Gram negativos, Staphylococcus y la mayoría de los organismos Gram positivos",
+comentarios:""
+},
+
+{
+nombre:"Cefazolina (Reproducción)",
+dosis:"1 g en 60 mL de NaCl IU cada 24 h por 1 - 5 días",
+indicacion:"Antibiótico",
+comentarios:""
+},
+
+{
+nombre:"Cefepima",
+dosis:"Adulto: 2.2 mg/kg EV cada 8 h; Potrillo: 11 mg/kg EV o IM cada 8 h",
+indicacion:"Cefalosporina de cuarta generación. Actividad de amplio espectro",
+comentarios:""
+},
+
+{
+nombre:"Cefotaxima",
+dosis:"Potrillo: 40 mg/kg EV cada 6 h",
+indicacion:"Cefalosporina de tercera generación. Actividad de amplio espectro. Tratamiento de elección para meningitis bacteriana",
+comentarios:""
+},
+
+{
+nombre:"Ceftazidima",
+dosis:"20 mg/kg EV o IM cada 8 h",
+indicacion:"Cefalosporina de tercera generación. Actividad de amplio espectro. Tratamiento de elección para meningitis bacteriana",
+comentarios:""
+},
+
+{
+nombre:"Ceftiofur",
+dosis:"Neonato: 5 - 10 mg/kg EV cada 6 - 12 h; Potrillo: 2 - 5 mg/kg IM cada 12 h; Adulto: 2.2 mg/kg EV o IM cada 12 h",
+indicacion:"Cefalosporina de tercera generación. Actividad de amplio espectro",
+comentarios:"Farmacocinética EV en potrillos es desconocida. Una sugerencia es 10 mg/kg EV cada 6 h. Puede causar diarrea en adultos"
+},
+
+{
+nombre:"Ceftiofur (Intraarticular)",
+dosis:"150 mg IA cada 24 h",
+indicacion:"Artritis séptica o tenosinovitis",
+comentarios:""
+},
+
+{
+nombre:"Ceftiofur (Reproducción)",
+dosis:"1 g en 60 mL de NaCl IU cada 24 h por 3 - 5 días",
+indicacion:"Antibiótico",
+comentarios:""
+},
+
+{
+nombre:"Ceftriaxona",
+dosis:"10 mg/kg cada 6 h IM o EV diluido en NaCl",
+indicacion:"Antibiótico",
+comentarios:""
+},
+
+{
+nombre:"Ciclofosfamida",
+dosis:"1500 mg/500 kg EV cada 14 días por dos meses y luego cada 21 días hasta remisión",
+indicacion:"Antineoplásico para linfoma",
+comentarios:""
+},
+
+{
+nombre:"Ciclosporina A",
+dosis:"Implante ocular",
+indicacion:"Uveítis recurrente",
+comentarios:""
+},
+
+{
+nombre:"Cimetidina",
+dosis:"6.6 mg/kg EV cada 8 h; 15 mg/kg PO cada 8 h; 2.5 mg/kg PO cada 8 - 12 h",
+indicacion:"Antagonista H2 para úlceras gástricas; utilizado a baja dosis para tratamiento de melanoma",
+comentarios:""
+},
+
+{
+nombre:"Cipionato de Estradiol",
+dosis:"8 mg/500 kg IM (dosis única)",
+indicacion:"Relajación cervical",
+comentarios:""
+},
+
+{
+nombre:"Ciproheptadina",
+dosis:"Orexígena: 0.2 - 0.4 mg/kg PO cada 12 h; Cushing: 0.15 - 0.25 mg/kg PO cada 24 h",
+indicacion:"Antagonista serotonina, antihistamínico",
+comentarios:""
+},
+
+{
+nombre:"Cisaprida",
+dosis:"0.5 mg/kg PO cada 8 h",
+indicacion:"Proquinético para desórdenes de motilidad cecal",
+comentarios:""
+},
+
+{
+nombre:"Claritromicina",
+dosis:"7.5 mg/kg PO cada 12 h",
+indicacion:"Macrólido efectivo para el tratamiento de infecciones por R. equi. Combinar con Rifampicina",
+comentarios:""
+},
+
+{
+nombre:"Clenbuterol",
+dosis:"0.8 ng/kg PO cada 12 h",
+indicacion:"Broncodilatador y tocolítico",
+comentarios:"Puede causar taquicardia y sudoración"
+},
+
+{
+nombre:"Cloprostenol Sódico",
+dosis:"263 mg/500 kg IM cada 4 - 6 h",
+indicacion:"Aumento del tono uterino y facilita el clearance uterino",
+comentarios:""
+},
+
+{
+nombre:"Cloranfenicol (Palmitato)",
+dosis:"44 mg/kg PO cada 6 - 8 h",
+indicacion:"Antibiótico de amplio espectro. Bacteriostático",
+comentarios:"Manipular con precaución; riesgo para la salud humana"
+},
+
+{
+nombre:"Clorhexidina (Reproducción)",
+dosis:"1 g clorhidrato de clorhexidina en 30 mL NaCl IU para 2 tratamientos separados por 3 días durante el estro",
+indicacion:"Inflamación uterina que no responde a otras modalidades de tratamiento",
+comentarios:""
+},
+
+{
+nombre:"Cloruro de Potasio",
+dosis:"Agregar 20 - 40 mEq por cada L de fluido EV; no exceder 0.5 mEq/kg/h",
+indicacion:"Suplemento para caballos anoréxicos o tratamiento de hipokalemia",
+comentarios:""
+},
+
+{
+nombre:"Cromoglicato Sódico",
+dosis:"16 ug/kg o 2 dosificaciones de 800 ug/100 kg vía inhalatoria cada 12 - 24 h. Continuar cada 12 h por 10 días, luego cada 24 h por 10 días, luego cada 48 h por 10 días",
+indicacion:"Síndrome de asma equino con mastocitosis en BAL",
+comentarios:""
+},
+
+{
+nombre:"Dantroleno",
+dosis:"Profilaxis: 2 mg/kg PO cada 24 h; Terapia: 10 mg/kg PO y luego 2.5 mg/kg PO cada 2 h",
+indicacion:"Prevención/tratamiento de rabdomiolisis",
+comentarios:""
+},
+
+{
+nombre:"Detomidina",
+dosis:"0.01 - 0.02 mg/kg IV o 0.02 - 0.04 mg/kg IM en bolo; infusión constante a 0.03 - 0.05 mg/kg/h",
+indicacion:"Sedación/Analgesia",
+comentarios:"Se puede añadir Butorfanol para mejorar las propiedades analgésicas; útil para procedimientos en estación"
+},
+
+{
+nombre:"Dexametasona",
+dosis:"0.02 - 0.2 mg/kg PO, EV, IM cada 24 h",
+indicacion:"Corticosteroide",
+comentarios:"Contraindicado durante preñez"
+},
+
+{
+nombre:"Dexametasona (Oftálmica) 0.1%",
+dosis:"Tópico ocular cada 4 - 12 h",
+indicacion:"Uveítis anterior no séptica",
+comentarios:""
+},
+
+{
+nombre:"Dexmedetomidina",
+dosis:"0.003 - 0.005 mg/kg EV como bolo de carga, seguido de infusión constante de 0.001 - 0.002 mg/kg/h",
+indicacion:"Sedación/Analgesia",
+comentarios:""
+},
+
+{
+nombre:"Diazepam",
+dosis:"Convulsiones: 0.1 - 0.4 mg/kg EV (dosis única); Inducción anestésica: 0.05 mg/kg EV con Ketamina",
+indicacion:"Antiepiléptico, inducción anestésica",
+comentarios:""
+},
+
+{
+nombre:"Diazepam (Reproducción)",
+dosis:"Potro: 10 - 20 mg totales EV (dosis única) aproximadamente 5 - 7 minutos antes de la monta",
+indicacion:"Sedante",
+comentarios:""
+},
+
+{
+nombre:"Difenhidramina",
+dosis:"0.5 - 1 mg/kg EV",
+indicacion:"Antihistamínico",
+comentarios:""
+},
+
+{
+nombre:"Digoxina",
+dosis:"0.002 mg/kg EV cada 12 h; 0.03 mg/kg PO (dosis de carga); 0.01 - 0.03 mg/kg PO cada 12 h",
+indicacion:"Inotrópico cardíaco, cronotrópico negativo para insuficiencia cardíaca congestiva",
+comentarios:"Monitorear niveles séricos para mantener < 2.0 ng/mL"
+},
+
+{
+nombre:"Dimetilsulfóxido (DMSO)",
+dosis:"1 g/kg EV cada 12 h",
+indicacion:"Antiendotóxico, cazador de radicales libres",
+comentarios:"Diluir en una solución < 10%. Puede causar hemólisis si no es diluido"
+},
+
+{
+nombre:"Dimetilsulfóxido (DMSO) (Perfusión regional)",
+dosis:"DMSO 20% (DMSO 90% diluido en suero Ringer Lactato hasta solución de DMSO 20%) con amikacina",
+indicacion:"Perfusión regional en zonas de daño tisular y contaminación extensos",
+comentarios:""
+},
+
+{
+nombre:"Dimetilsulfóxido (DMSO) (Reproducción)",
+dosis:"2 L de solución al 5% IU cada 48 h para 3 tratamientos totales",
+indicacion:"Inflamación no específica recurrente e infecciones fúngicas o por levaduras",
+comentarios:"No dejar en el útero. Usar solo para lavado"
+},
+
+{
+nombre:"Dinosprost Trometamine (Lutalyse®) (Reproducción)",
+dosis:"10 mg IM (dosis única)",
+indicacion:"Lisis cuerpo lúteo",
+comentarios:""
+},
+
+{
+nombre:"Dioctilsulfosuccinato de Sodio 5% (DSS)",
+dosis:"10 - 20 mg/kg en 4 - 8 L de agua vía NG",
+indicacion:"Surfactante para impacciones tipo cólico",
+comentarios:""
+},
+
+{
+nombre:"Dipirona",
+dosis:"22 mg/kg EV o IM",
+indicacion:"Analgésico, antipirético, antiespasmódico",
+comentarios:""
+},
+
+{
+nombre:"Dobutamina",
+dosis:"2 - 15 ug/kg/min EV en infusión constante",
+indicacion:"Inotrópico cardíaco para hipotensión",
+comentarios:"Subdosificación mejora diuresis"
+},
+
+{
+nombre:"Domperidona",
+dosis:"1.1 mg/kg PO cada 24 h durante 10 días previos a la fecha de parto o si se sabe que hay pastura de Festuca",
+indicacion:"Agalactia",
+comentarios:"Antagonista de dopamina"
+},
+
+{
+nombre:"Dopamina",
+dosis:"1 - 10 ug/kg/min EV en infusión constante",
+indicacion:"Vasodilatador de la arteriola aferente renal; en altas dosis incrementa el gasto cardíaco",
+comentarios:""
+},
+
+{
+nombre:"Doxapram",
+dosis:"0.02 - 0.05 mg/kg/min EV en infusión constante; 1 mg/kg EV cada 5 minutos",
+indicacion:"Estimulante respiratorio",
+comentarios:""
+},
+
+{
+nombre:"Doxiciclina",
+dosis:"10 - 15 mg/kg PO cada 12 h",
+indicacion:"Antibiótico de amplio espectro",
+comentarios:""
+},
+
+{
+nombre:"Enrofloxacino",
+dosis:"5 mg/kg EV cada 12 - 24 h; 7.5 - 10 mg/kg PO cada 24 h",
+indicacion:"Fluoroquinolona. Infecciones por Gram negativo o Staphylococcus",
+comentarios:"Contraindicado en caballos jóvenes porque puede causar erosión de cartílago articular"
+},
+
+{
+nombre:"Epinefrina",
+dosis:"Baja dosis: 0.01 - 0.02 mg/kg; Alta dosis: 0.1 - 0.2 mg/kg EV",
+indicacion:"Anafilaxis, paro cardíaco",
+comentarios:""
+},
+
+{
+nombre:"Eritromicina",
+dosis:"1 mg/kg EV cada 6 h",
+indicacion:"Proquinético",
+comentarios:""
+},
+
+{
+nombre:"Etodolaco",
+dosis:"23 mg/kg PO cada 24 h",
+indicacion:"AINE para dolor músculo esquelético",
+comentarios:""
+},
+
+{
+nombre:"Famotidina",
+dosis:"3 mg/kg PO cada 8 h",
+indicacion:"Antagonista H2 para tratamiento o prevención de úlceras gástricas",
+comentarios:""
+},
+
+{
+nombre:"Febendazol",
+dosis:"5 mg/kg PO; Pequeños estróngilos enquistados: 10 mg/kg PO cada 24 h por 5 días y luego cada 48 h",
+indicacion:"Antiparasitario",
+comentarios:""
+},
+
+{
+nombre:"Fenilbutazona",
+dosis:"2.2 - 4.4 mg/kg EV o PO cada 12 - 24 h",
+indicacion:"AINE",
+comentarios:"Puede ser ulcerogénico"
+},
+
+{
+nombre:"Fenilefrina",
+dosis:"20 mg/500 kg en 60 mL de NaCl EV durante 5 minutos",
+indicacion:"Contracción esplénica: entrampamiento nefroesplénico",
+comentarios:"Trotar durante 30 minutos después de la infusión EV"
+},
+
+{
+nombre:"Fenilpropanolamina",
+dosis:"1.0 - 2.0 mg/kg PO cada 12 h",
+indicacion:"Incrementa el tono uretral en caballos con incontinencia",
+comentarios:""
+},
+
+{
+nombre:"Fenobarbital",
+dosis:"2 - 5 mg/kg PO cada 12 - 24 h; 8 - 16 mg/kg EV diluido como dosis de carga y luego 5 - 10 mg/kg EV diluido cada 8 h",
+indicacion:"Barbitúrico para el control de crisis convulsivas",
+comentarios:""
+},
+
+{
+nombre:"Fentanilo",
+dosis:"0.01 - 0.1 mg/kg EV bolo único; alternativamente 0.002 - 0.005 EV como bolo de carga, seguido de infusión constante de 0.005 - 0.01 mg/kg/h",
+indicacion:"Analgésico opiáceo potente de acción corta",
+comentarios:"Combinar con agonistas α-2 cuando se administra como bolo único"
+},
+
+{
+nombre:"Firocoxib",
+dosis:"Dosis inicial 0.3 mg/kg PO, seguido de 0.1 mg/kg PO cada 24 h",
+indicacion:"Antiinflamatorio no esteroidal selectivo COX-2",
+comentarios:"En Chile: Previcox"
+},
+
+{
+nombre:"Fluconazol",
+dosis:"2 mg/kg PO cada 12 h",
+indicacion:"Antifúngico sistémico",
+comentarios:""
+},
+
+{
+nombre:"Flufenazina",
+dosis:"0.05 - 0.1 mg/kg IM cada 21 días",
+indicacion:"Tranquilizante de larga acción",
+comentarios:""
+},
+
+{
+nombre:"Flunixin Meglumine",
+dosis:"Adulto: 1.1 mg/kg EV, PO cada 12 h; Potrillo: 1.5 mg/kg EV cada 24 h; Endotoxemia: 0.25 mg/kg EV cada 6 h",
+indicacion:"AINE con amplia variedad de usos",
+comentarios:"Puede ser ulcerogénico"
+},
+
+{
+nombre:"Fluticasona",
+dosis:"4.4 ug/kg. Comenzar cada 12 h por 10 días, luego cada 24 h por 10 días, luego cada 48 h por 10 días",
+indicacion:"Corticoesteroide inhalatorio para síndrome de asma equino",
+comentarios:""
+},
+
+{
+nombre:"Formalina 10%",
+dosis:"10 - 40 mL/500 kg EV en 1 L NaCl; o 0.02 - 0.06 mL/kg",
+indicacion:"Hemorragia aguda",
+comentarios:""
+},
+
+{
+nombre:"Furosemida",
+dosis:"0.5 - 1 mg/kg EV o IM cada 6 - 12 h",
+indicacion:"Diurético",
+comentarios:""
+},
+
+{
+nombre:"Gentamicina",
+dosis:"6.6 mg/kg EV cada 24 h",
+indicacion:"Aminoglucósido. Infecciones por bacterias Gram negativas y Staphylococcus",
+comentarios:""
+},
+
+{
+nombre:"Gentamicina (Intraarticular y perfusión regional)",
+dosis:"Intraarticular: 1 g por articulación cada 24 h; Perfusión regional: 1/2 dosis del cálculo corporal cada 24 h diluido 50% con NaCl 0.9%",
+indicacion:"Antibiótico",
+comentarios:""
+},
+
+{
+nombre:"Gentamicina (Oftálmica)",
+dosis:"0.2 mL tópico cada 2 - 12 h",
+indicacion:"Queratitis por bacterias Gram negativas",
+comentarios:""
+},
+
+{
+nombre:"Gentamicina (Reproducción)",
+dosis:"2 gramos (amortiguado con igual volumen de solución de bicarbonato de sodio 8.4%) en 60 mL de NaCl IU cada 24 h por 3 - 5 días",
+indicacion:"Antibiótico",
+comentarios:""
+},
+
+{
+nombre:"Glicosaminoglicano Polisulfatado (Adequan® IA / Adequan® IM Multi Dose)",
+dosis:"250 mg + 250 mg Amikacina IA cada 7 días, 4 tratamientos en total (IA); 500 mg cada 4 días por 6 aplicaciones totales (IM)",
+indicacion:"Tratamiento alternativo para osteoartritis",
+comentarios:""
+},
+
+{
+nombre:"Gluconato de Calcio 23%",
+dosis:"Hasta 1 mL/kg en fluidos EV",
+indicacion:"Hipocalcemia, cardioprotector durante hiperkalemia",
+comentarios:""
+},
+
+{
+nombre:"GnRH",
+dosis:"Baja libido: 50 mg EV (dosis única) 1 - 2 h antes de la monta; Criptorquideo: 500 mg SC cada 12 h por 10 días",
+indicacion:"Libido baja. Criptorquidismo",
+comentarios:""
+},
+
+{
+nombre:"Guaifenesina 5%",
+dosis:"Inducción: bolo a efecto. Mantención: a efecto en combinación con Ketamina/Xilazina",
+indicacion:"Relajante muscular, expectorante. Inducción y mantención anestésica",
+comentarios:""
+},
+
+{
+nombre:"HCG",
+dosis:"Inducción ovulación: 2.500 UI EV (dosis única) por ciclo estral 24 h antes de la monta",
+indicacion:"Inducción de la ovulación. Criptorquidismo",
+comentarios:"Administrar cuando el folículo alcance 35 mm de diámetro y cuando haya buen tono uterino y relajación cervical"
+},
+
+{
+nombre:"Heparina",
+dosis:"40 - 80 UI/kg SC cada 8 h o 100 UI/kg/día en infusión constante",
+indicacion:"Prevención de adhesión y enfermedad tromboembólica",
+comentarios:"Puede causar disminución transitoria de hematocrito"
+},
+
+{
+nombre:"Heparina de bajo peso molecular",
+dosis:"1 mg/kg SC cada 24 h",
+indicacion:"Prevención de enfermedad tromboembólica en sepsis",
+comentarios:""
+},
+
+{
+nombre:"Heparina Solución",
+dosis:"1000 UI/L NaCl 0.9%",
+indicacion:"Lavado catéter endovenoso",
+comentarios:""
+},
+
+{
+nombre:"Hetastarch®",
+dosis:"7 - 10 mL/kg. Se puede repetir en 36 - 48 h",
+indicacion:"Coloide sintético",
+comentarios:""
+},
+
+{
+nombre:"Hialuronato sódico (Legend® MultiDose EV / Legend® IA)",
+dosis:"4 mL (40 mg) EV cada 7 días por 6 aplicaciones; 2 mL (20 mg) IA cada 7 días por 3 aplicaciones o dosis única",
+indicacion:"Osteoartritis no infecciosa",
+comentarios:"Inyección IA puede causar inflamación difusa por 24 - 48 horas"
+},
+
+{
+nombre:"Hidrocortisona",
+dosis:"1 mg/kg EV cada 6 h por 7 días",
+indicacion:"Dosis fisiológica: en humanos ayuda en la prevención de hipotensión o ARDS inducida por sepsis",
+comentarios:""
+},
+
+{
+nombre:"Hidroxicina",
+dosis:"1 mg/kg PO cada 12 - 24 h",
+indicacion:"Antihistamínico para prurito/urticaria",
+comentarios:""
+},
+
+{
+nombre:"Hidróxido de Magnesio",
+dosis:"0.5 mL/kg PO cada 4 h",
+indicacion:"Antiácido",
+comentarios:"Efecto corta duración"
+},
+
+{
+nombre:"Ibuprofeno",
+dosis:"Potrillo: 25 mg/kg PO cada 8 - 12 h",
+indicacion:"AINE",
+comentarios:""
+},
+
+{
+nombre:"Imidocarb Dipropionato",
+dosis:"2 mg/kg IM cada 24 h por 2 días (B. caballi); 4 mg/kg IM cada 3 días para 4 tratamientos (Theileria equi)",
+indicacion:"Piroplasmosis",
+comentarios:"Eficacia limitada; recurrencia frecuente"
+},
+
+{
+nombre:"Imipenem",
+dosis:"5 - 25 mg/kg EV durante 20 minutos cada 6 - 8 h",
+indicacion:"Carbapenemas. Amplio espectro",
+comentarios:"Reservar para infecciones bacterianas multirresistentes"
+},
+
+{
+nombre:"Imipramina HCl",
+dosis:"Potro: 500 - 800 mg PO cada 12 - 24 h",
+indicacion:"Eyaculación química (bajo umbral de eyaculación)",
+comentarios:"Administrar 1 - 2 horas antes de la eyaculación química con 2.5 - 4 mL de xilacina EV"
+},
+
+{
+nombre:"Insulina Regular",
+dosis:"0.1 - 0.5 UI SC; 0.00125 - 0.05 UI/kg/h en infusión constante",
+indicacion:"Hiperglicemia, hiperlipemia",
+comentarios:"Monitorear concentración de glucosa sérica"
+},
+
+{
+nombre:"Insulina Zinc Protamina",
+dosis:"0.4 UI/kg IM o SC cada 24 h",
+indicacion:"Hiperglicemia, hiperlipemia",
+comentarios:"Monitorear concentración de glucosa sérica"
+},
+
+{
+nombre:"Isoxuprina HCl",
+dosis:"0.6 mg/kg PO cada 12 h",
+indicacion:"Vasodilatador para enfermedad navicular y placentitis",
+comentarios:""
+},
+
+{
+nombre:"Itraconazol",
+dosis:"3 mg/kg PO cada 12 h",
+indicacion:"Antifúngico sistémico",
+comentarios:""
+},
+
+{
+nombre:"Ivermectina",
+dosis:"0.2 mg/kg PO (dosis única)",
+indicacion:"Antiparasitario",
+comentarios:""
+},
+
+{
+nombre:"Ketamina",
+dosis:"Inducción anestésica: 2.2 mg/kg EV; Mantención: 0.05 - 0.1 mg/kg/min",
+indicacion:"Anestésico general/Analgésico",
+comentarios:"Contraindicado en casos con hipertensión o aumento de presión intracraneana"
+},
+
+{
+nombre:"Ketoconazol",
+dosis:"10 mg/kg PO cada 24 h",
+indicacion:"Antifúngico sistémico",
+comentarios:""
+},
+
+{
+nombre:"Ketoprofeno",
+dosis:"2.2 mg/kg EV cada 24 h",
+indicacion:"AINE",
+comentarios:"Puede ser ulcerogénico"
+},
+
+{
+nombre:"Lactasa",
+dosis:"0.25 - 2 mg/kg PO cada 2 - 6 h",
+indicacion:"Intolerancia a la lactosa",
+comentarios:""
+},
+
+{
+nombre:"Levamisol",
+dosis:"2 mg/kg PO cada 48 h",
+indicacion:"Inmunomodulador",
+comentarios:""
+},
+
+{
+nombre:"Lidocaína",
+dosis:"1.3 mg/kg bolo EV durante 5 min, luego 0.05 mg/kg/min en infusión constante; 0.2 - 0.5 mg/kg EV cada 5 min",
+indicacion:"Analgésico visceral. Antiarrítmico",
+comentarios:"En infusión constante puede causar ataxia"
+},
+
+{
+nombre:"Lidocaína HCl (Reproducción)",
+dosis:"50 mg combinado con 75 mg Xilacina en 6 mL de NaCl 0.9%",
+indicacion:"Anestesia epidural",
+comentarios:""
+},
+
+{
+nombre:"Loperamida",
+dosis:"0.1 - 0.2 mg/kg PO cada 6 h",
+indicacion:"Antidiarreico",
+comentarios:""
+},
+
+{
+nombre:"Manitol",
+dosis:"500 mg/kg EV cada 12 h. Administrar diluido en una solución al 20%",
+indicacion:"Diurético osmótico para tratamiento de edema cerebral. Insuficiencia renal aguda",
+comentarios:""
+},
+
+{
+nombre:"Medetomidina",
+dosis:"0.005 - 0.007 mg/kg EV bolo; 0.003 - 0.007 mg/kg EV seguido de infusión constante a 0.001 - 0.004 mg/kg/h",
+indicacion:"Sedación/Analgesia",
+comentarios:""
+},
+
+{
+nombre:"Metadona",
+dosis:"0.1 - 0.2 mg/kg EV o IM cada 4 - 6 h",
+indicacion:"Sedación/Analgesia",
+comentarios:"Utilizado en combinación con agonistas α-2; puede generar excitación"
+},
+
+{
+nombre:"Metilprednisolona Acetato (Intraarticular)",
+dosis:"40 - 120 mg por articulación",
+indicacion:"Tratamiento de osteoartritis",
+comentarios:""
+},
+
+{
+nombre:"Metilprednisolona Acetato (Oftálmico)",
+dosis:"40 mg subconjuntival cada 1 - 3 semanas",
+indicacion:"Uveítis no séptica",
+comentarios:""
+},
+
+{
+nombre:"Metocarbamol",
+dosis:"5 - 25 mg/kg EV lento cada 12 h; 50 mg/kg PO cada 12 h",
+indicacion:"Relajante muscular",
+comentarios:""
+},
+
+{
+nombre:"Metoclopramida",
+dosis:"0.1 - 0.2 mg/kg EV o IM cada 6 - 12 h; 0.04 mg/kg/h EV en infusión constante",
+indicacion:"Proquinético para hipomotilidad gástrica",
+comentarios:""
+},
+
+{
+nombre:"Metronidazol",
+dosis:"10 mg/kg EV cada 12 h; 10 - 25 mg/kg PO cada 8 h; 50 mg/kg PR cada 12 h",
+indicacion:"Infecciones anaeróbicas (especialmente B. fragilis, C. difficile, C. perfringens)",
+comentarios:"Vía EV es usada en potrillos con enteritis necrotizante y asociada a íleo"
+},
+
+{
+nombre:"Miconazol 1% (Oftálmico)",
+dosis:"0.2 mL tópico cada 4 - 12 h",
+indicacion:"Queratitis fúngica",
+comentarios:""
+},
+
+{
+nombre:"Midazolam",
+dosis:"0.02 - 0.04 mg/kg EV bolo. 0.1 - 0.2 mg/kg/h EV en infusión constante",
+indicacion:"Actividad convulsiva neonatal intratable",
+comentarios:""
+},
+
+{
+nombre:"Misoprostol",
+dosis:"0.005 mg/kg PO cada 12 - 24 h",
+indicacion:"Prostaglandina E para tratamiento de colitis dorsal derecha",
+comentarios:"No utilizar en yeguas preñadas. Manipular con guantes"
+},
+
+{
+nombre:"Morfina",
+dosis:"0.1 - 0.2 mg/kg EV o IM cada 4 - 6 h",
+indicacion:"Sedación",
+comentarios:"Utilizado en combinación con agonistas α-2; puede generar excitación"
+},
+
+{
+nombre:"Moxidectina",
+dosis:"0.4 mg/kg PO",
+indicacion:"Antiparasitario",
+comentarios:""
+},
+
+{
+nombre:"Naproxeno",
+dosis:"10 mg/kg PO cada 12 - 24 h",
+indicacion:"AINE",
+comentarios:""
+},
+
+{
+nombre:"Natamicina (Oftálmica)",
+dosis:"0.2 mL tópico cada 4 - 12 h",
+indicacion:"Queratitis fúngica",
+comentarios:""
+},
+
+{
+nombre:"Neostigmina",
+dosis:"Adulto: 2 - 10 mg totales cada 2 - 4 h; Potrillo: 1 mg SC",
+indicacion:"Proquinético",
+comentarios:""
+},
+
+{
+nombre:"Nitazoxanida",
+dosis:"Día 1 - 5: 25 mg/kg PO cada 24 h; Día 6 - 28: 50 mg/kg PO cada 24 h",
+indicacion:"Terapia EPM",
+comentarios:""
+},
+
+{
+nombre:"Ofloxacina (Oftálmica)",
+dosis:"0.2 mL tópico cada 2 - 12 h",
+indicacion:"Fluoroquinolona para Gram negativo o Staphylococcus. Queratitis. Buena penetración corneal",
+comentarios:""
+},
+
+{
+nombre:"Omeprazol",
+dosis:"Terapia: 4 mg/kg PO cada 24 h; Profilaxis: 1 mg/kg PO cada 24 h",
+indicacion:"Inhibidor de la bomba de protones para úlceras gástricas",
+comentarios:"El tratamiento curativo debe ser de al menos 30 días de duración; suele justificarse el seguimiento gastroscópico"
+},
+
+{
+nombre:"Oxacilina",
+dosis:"25 mg/kg EV cada 6 h",
+indicacion:"Antibiótico resistente a betalactamasa. Indicado para tratamiento de Staphylococcus",
+comentarios:""
+},
+
+{
+nombre:"Oxitetraciclina",
+dosis:"10 mg/kg EV cada 24 h",
+indicacion:"Antibiótico de amplio espectro",
+comentarios:""
+},
+
+{
+nombre:"Oxitetraciclina",
+dosis:"2 - 3 g totales EV (lento) cada 24 h hasta resolución del cuadro",
+indicacion:"Retracción de tendones flexores",
+comentarios:""
+},
+
+{
+nombre:"Oxitetraciclina Anfótera (Reproducción)",
+dosis:"50 g en 60 mL de NaCl cada 24 h por 1 - 7 días",
+indicacion:"Amplio espectro",
+comentarios:"Usado en post-parto o post-aborto. Muy bueno en la fase de pérdida de detritus"
+},
+
+{
+nombre:"Oxitocina",
+dosis:"10 - 20 UI/500 kg cada 1 h",
+indicacion:"Tratamiento de obstrucción esofágica",
+comentarios:"Sólo en los dos tercios proximales del esófago"
+},
+
+{
+nombre:"Oxitocina (Reproducción)",
+dosis:"10 - 60 UI/500 kg IM o EV cada 30 minutos por 24 h",
+indicacion:"Aumento del tono uterino y facilita el clearance uterino, retención de placenta, inducción del parto",
+comentarios:""
+},
+
+{
+nombre:"Oxyglobin®",
+dosis:"40 - 120 UI/500 kg EV",
+indicacion:"Hemoglobina semi-sintética",
+comentarios:""
+},
+
+{
+nombre:"Pantoprazol",
+dosis:"1.5 mg/kg EV cada 24 h",
+indicacion:"Inhibidor de la bomba de protones para potrillos que no toleran medicaciones orales",
+comentarios:""
+},
+
+{
+nombre:"Penicilina Potásica",
+dosis:"20.000 - 50.000 UI/kg cada 6 h",
+indicacion:"Antibiótico betalactámico. Infecciones por Gram positivas y bacterias anaeróbicas",
+comentarios:"Combinar con aminoglucósidos para cubrir infecciones Gram negativas y Staphylococcus"
+},
+
+{
+nombre:"Penicilina Procaínica",
+dosis:"22.000 UI/kg IM cada 12 h",
+indicacion:"Antibiótico betalactámico. Infecciones por Gram positivas y bacterias anaeróbicas",
+comentarios:"Combinar con aminoglucósidos para cubrir infecciones Gram negativas y Staphylococcus"
+},
+
+{
+nombre:"Pentobarbital Sódico",
+dosis:"2 - 10 mg/kg EV",
+indicacion:"Antiepiléptico",
+comentarios:"Depresor cardiorrespiratorio"
+},
+
+{
+nombre:"Pentoxifilina",
+dosis:"8.5 mg/kg PO cada 8 - 12 h",
+indicacion:"Antiendotóxico, vasodilatador",
+comentarios:""
+},
+
+{
+nombre:"Pergolide",
+dosis:"0.002 - 0.006 mg/kg PO cada 24 h",
+indicacion:"Enfermedad de Cushing equino. Agonista de dopamina",
+comentarios:""
+},
+
+{
+nombre:"Pirantel Pamoato",
+dosis:"6.6 - 20 mg/kg PO",
+indicacion:"Antiparasitario",
+comentarios:""
+},
+
+{
+nombre:"Pirimetamina / Sulfadiazina",
+dosis:"Pirimetamina: 1 mg/kg PO cada 24 h por 6 meses; Sulfas: 30 mg/kg PO cada 24 h por 6 meses",
+indicacion:"Terapia EPM",
+comentarios:"Puede causar anemia no regenerativa que responde una vez terminada la medicación. Puede causar disgenesia fatal de órganos fetales"
+},
+
+{
+nombre:"Piroxicam",
+dosis:"0.2 mg/kg PO cada 24 h",
+indicacion:"AINE",
+comentarios:""
+},
+
+{
+nombre:"Plasma",
+dosis:"Transfusión de plasma neonatal: 20 - 40 mL/kg; Endotoxemia: 2 - 4 mL/kg; Hipoproteinemia: 10 mL/kg",
+indicacion:"Tratamiento para falla de calostrado, endotoxemia, hipoproteinemia",
+comentarios:""
+},
+
+{
+nombre:"Polimixina B",
+dosis:"6.000 UI/kg EV cada 12 h en 1 L Ringer o NaCl durante 30 minutos",
+indicacion:"Dosis antiendotóxica",
+comentarios:""
+},
+
+{
+nombre:"Ponazuril",
+dosis:"5 mg/kg PO cada 24 h por 28 días",
+indicacion:"Antiprotozoario; tratamiento de EPM (mielomeningoencefalitis protozoaria equina)",
+comentarios:""
+},
+
+{
+nombre:"Povidona Yodada 2% (Oftálmica)",
+dosis:"0.2 mL tópico cada 24 h",
+indicacion:"Queratitis fúngica",
+comentarios:""
+},
+
+{
+nombre:"Povidona Yodada Solución (Reproducción)",
+dosis:"2 - 4 L al 10% IU cada 24 h por 1 - 7 días",
+indicacion:"Inflamación no específica e infecciones fúngicas o por levaduras",
+comentarios:"No dejar en el útero. Usar solo para lavado"
+},
+
+{
+nombre:"Praziquantel",
+dosis:"1 mg/kg PO",
+indicacion:"Antiparasitario para cestodes",
+comentarios:""
+},
+
+{
+nombre:"Prednisolona",
+dosis:"0.5 - 4 mg/kg PO cada 24 - 48 h",
+indicacion:"Corticosteroide",
+comentarios:""
+},
+
+{
+nombre:"Prednisolona Acetato 1% (Oftálmico)",
+dosis:"0.2 mL tópico cada 4 - 12 h",
+indicacion:"Uveítis anterior no séptica",
+comentarios:""
+},
+
+{
+nombre:"Prednisolona Sódica Succinato",
+dosis:"1 - 5 mg/kg EV o IM cada 12 - 24 h",
+indicacion:"Anafilaxia",
+comentarios:""
+},
+
+{
+nombre:"Procainamida",
+dosis:"0.1 - 0.22 mg/kg/min PO",
+indicacion:"Taquicardia ventricular",
+comentarios:""
+},
+
+{
+nombre:"Progesterona (depósito)",
+dosis:"150 mg IM cada 10 días",
+indicacion:"Supresión del estro, sincronización del estro, mantención de la preñez",
+comentarios:""
+},
+
+{
+nombre:"Progesterona y Estradiol (Reproductivo)",
+dosis:"150 y 10 mg IM cada 24 h",
+indicacion:"Supresión del estro, sincronización del estro, mantención de la preñez",
+comentarios:""
+},
+
+{
+nombre:"Propofol",
+dosis:"Inducción: 2 - 4 mg/kg EV; Mantención: 0.2 - 0.3 mg/kg/min",
+indicacion:"Anestesia general EV para potrillos",
+comentarios:"En adultos no se usa como anestésico general único (pobre analgesia, grandes volúmenes son requeridos y causa significativa depresión respiratoria)"
+},
+
+{
+nombre:"Psyllium Muciloide en Polvo",
+dosis:"Terapia: 1 g/kg vía NG cada 12 - 24 h; Prevención: 1 g/kg en alimento por 1 semana por un mes",
+indicacion:"Sablosis",
+comentarios:"Mezclar con aceite mineral cuando es dado por vía NG"
+},
+
+{
+nombre:"Quinidina Sulfato",
+dosis:"Fibrilación atrial aguda: 1.1 - 2.2 mg/kg EV cada 10 minutos hasta alcanzar una dosis de 12 mg/kg. Crónica: 22 mg/kg vía NG cada 2 h hasta conversión máxima de 5 dosis. Continuar intentando cada 6 h con Digoxina 11 ng/kg vía NG",
+indicacion:"Fibrilación atrial",
+comentarios:"Efectos secundarios pueden incluir urticaria, obstrucción de vías aéreas, taquicardia supraventricular, parafimosis, colitis"
+},
+
+{
+nombre:"Ranitidina",
+dosis:"1.4 mg/kg EV cada 8 h; 6.6 mg/kg PO cada 8 h",
+indicacion:"Tratamiento y prevención de úlceras gástricas",
+comentarios:""
+},
+
+{
+nombre:"Reserpina",
+dosis:"2.5 mg/450 kg IM cada 30 días; 2.5 mg/450 kg PO cada 24 h",
+indicacion:"Tranquilizante de larga acción",
+comentarios:"Diarrea leve que puede durar 3 días. Puede causar signos neurológicos a dosis más altas"
+},
+
+{
+nombre:"Rifampicina",
+dosis:"Adulto: 10 mg/kg PO cada 12 h; Potrillo: 5 mg/kg PO cada 12 h",
+indicacion:"Bacterias Gram positivas, especialmente R. equi. Buena penetración en hueso/abscesos",
+comentarios:"Debe combinarse con macrólidos"
+},
+
+{
+nombre:"Romifidina",
+dosis:"Sedación/Analgesia: 0.08 - 0.16 mg/kg EV; Preanestesia: 0.075 mg/kg EV. Infusión constante: 0.018 mg/kg/h",
+indicacion:"Agonista alfa-2 para sedación, analgesia o preanestesia",
+comentarios:"Combinar con butorfanol 0.025 mg/kg para analgesia"
+},
+
+{
+nombre:"Salbutamol",
+dosis:"20 - 30 mg/kg cada 12 h EV",
+indicacion:"Broncodilatador",
+comentarios:""
+},
+
+{
+nombre:"Salmeterol",
+dosis:"0.4 ug/kg o 2 dosificaciones de 25 ug/100 kg vía inhalatoria cada 12 - 24 h",
+indicacion:"Broncodilatador de larga acción para uso en pacientes con broncoespasmos severos",
+comentarios:""
+},
+
+{
+nombre:"Selenio",
+dosis:"5 mg/100 kg IM o EV",
+indicacion:"Deficiencia de Selenio",
+comentarios:"Se recomienda exclusivamente la administración EV lenta"
+},
+
+{
+nombre:"Solución Hipertónica",
+dosis:"2 - 4 mL/kg bolo EV",
+indicacion:"Expansor de plasma de bajo volumen",
+comentarios:"Continuar con fluido isotónico"
+},
+
+{
+nombre:"Subsalicilato de Bismuto",
+dosis:"Adulto: 1 L/100 kg vía NG cada 24 h; Potrillo: 1 mL/kg PO cada 6 - 12 h",
+indicacion:"Antiinflamatorio intraluminal y adsorbente de toxinas",
+comentarios:""
+},
+
+{
+nombre:"Sucralfato",
+dosis:"20 - 40 mg/kg PO cada 6 h",
+indicacion:"Recubrimiento de úlceras gástricas",
+comentarios:""
+},
+
+{
+nombre:"Suero autólogo (Oftálmico)",
+dosis:"0.2 mL tópico cada 1 - 4 h",
+indicacion:"Antiproteinasa para la fusión de úlceras",
+comentarios:""
+},
+
+{
+nombre:"Sulfadiazina de Plata (Oftálmico)",
+dosis:"0.2 mL cada 4 - 12 h, mezclar 1 mL de pomada con 8 mL de lágrimas artificiales",
+indicacion:"Queratitis fúngica",
+comentarios:""
+},
+
+{
+nombre:"Sulfametoxazol/Trimetoprim",
+dosis:"15 - 30 mg/kg PO cada 12 h",
+indicacion:"Antibiótico de amplio espectro",
+comentarios:""
+},
+
+{
+nombre:"Sulfato de Magnesio Gastrointestinal",
+dosis:"1 g/kg vía NG con 4 - 8 L de agua cada 12 - 24 h",
+indicacion:"Aumenta el contenido de agua intraluminal para impacciones colónicas",
+comentarios:""
+},
+
+{
+nombre:"Testosterona",
+dosis:"0.1 - 0.2 mg/kg SC cada 48 h por 14 días",
+indicacion:"Baja libido",
+comentarios:""
+},
+
+{
+nombre:"Tiamina (Vitamina B1)",
+dosis:"1 - 5 mg/kg IM, SC, PO cada 24 h o 10 mg/kg en fluido EV cada 24 h",
+indicacion:"Tratamiento de trastornos neurológicos centrales",
+comentarios:""
+},
+
+{
+nombre:"Ticarcilina (Reproducción)",
+dosis:"3 g en 60 mL de NaCl IU cada 24 h por 3 - 5 días",
+indicacion:"Antibiótico",
+comentarios:""
+},
+
+{
+nombre:"Ticarcilina con Ácido Clavulánico",
+dosis:"Potrillo: 50 mg/kg EV cada 6 h",
+indicacion:"Generalmente efectivo contra bacterias Gram positivas y negativas comunes incluyendo Staphylococcus",
+comentarios:""
+},
+
+{
+nombre:"Ticarcilina con Ácido Clavulánico (Reproducción)",
+dosis:"3 g en 60 mL de NaCl IU cada 24 h por 3 - 5 días",
+indicacion:"Antibiótico",
+comentarios:""
+},
+
+{
+nombre:"Timolol Maleato (Oftálmico)",
+dosis:"Solución 0.5%, 1 gota cada 12 h",
+indicacion:"Miótico para glaucoma",
+comentarios:""
+},
+
+{
+nombre:"Tiopental",
+dosis:"3 - 10 mg/kg EV",
+indicacion:"Anestésico general",
+comentarios:"En procedimientos quirúrgicos mayores a una hora no se recomienda su uso mantenido"
+},
+
+{
+nombre:"Tiroxina-L",
+dosis:"0.01 mg/kg PO cada 24 h",
+indicacion:"Suplemento tiroideo",
+comentarios:""
+},
+
+{
+nombre:"Tobramicina (Oftálmico)",
+dosis:"0.2 mL tópico cada 2 - 12 h",
+indicacion:"Queratitis por bacterias Gram negativas",
+comentarios:""
+},
+
+{
+nombre:"Tramadol",
+dosis:"Neonato: 5 mg/kg PO cada 6 h; Destetado: 10 mg/kg PO cada 8 h",
+indicacion:"Opioide sintético analgésico",
+comentarios:"Dosis terapéutica efectiva no definida"
+},
+
+{
+nombre:"Triamcinolona Acetonida (Intraarticular)",
+dosis:"6 - 12 mg por articulación; 18 mg dentro de quiste subcondral",
+indicacion:"Tratamiento para osteoartritis",
+comentarios:"Dosis depende del tamaño de la articulación a inyectar y número de articulaciones a tratar. Dosis total máxima recomendada: 18 mg"
+},
+
+{
+nombre:"Tripelenamina",
+dosis:"1 mg/kg EV o IM cada 6 - 8 h",
+indicacion:"Antihistamínico para tratamiento de urticaria, reacción anafiláctica",
+comentarios:"Sinónimo: Piribenzamina"
+},
+
+{
+nombre:"Triple drip (Triple goteo)",
+dosis:"Mezcla de guaifenesina 5%, ketamina 0.1% y xilacina 0.05%. Dosis de infusión: 1 - 2 mL/kg/h",
+indicacion:"Se utiliza para extender la anestesia inyectable inducida por xilacina/ketamina",
+comentarios:"Genera adecuada relajación muscular y analgesia"
+},
+
+{
+nombre:"Tulatromicina",
+dosis:"2.5 mg/kg IM en músculos semimembranoso/semitendinoso",
+indicacion:"Tratamiento de larga acción específico para rodococosis en potrillos lactantes",
+comentarios:"Puede generar miositis marcada"
+},
+
+{
+nombre:"Vancomicina",
+dosis:"0.1%",
+indicacion:"Infecciones por Gram positivas, especialmente MRSA, R. equi resistente",
+comentarios:""
+},
+
+{
+nombre:"Vasopresina",
+dosis:"30 mg/kg EV cada 12 h o infusión constante a 0.3 - 1.0 ug/kg/min",
+indicacion:"Hipotensión refractaria",
+comentarios:""
+},
+
+{
+nombre:"Vitamina B Complejo",
+dosis:"1 mL/50 kg IM o en fluidos",
+indicacion:"Anorexia",
+comentarios:""
+},
+
+{
+nombre:"Vitamina C",
+dosis:"10 - 30 mg/kg EV (en fluidos) o PO cada 12 - 24 h",
+indicacion:"Antioxidante",
+comentarios:""
+},
+
+{
+nombre:"Vitamina E",
+dosis:"10 - 20 UI/kg SC, PO cada 24 h",
+indicacion:"Encefalopatía hipóxica; mielopatía degenerativa",
+comentarios:""
+},
+
+{
+nombre:"Xilacina",
+dosis:"Sedación: 0.2 - 1 mg/kg EV; Preanestesia: 1.1 mg/kg EV",
+indicacion:"Sedación/analgesia",
+comentarios:""
+},
+
+{
+nombre:"Xilacina (Reproducción)",
+dosis:"Epidural: 75 mg combinado con 50 mg de lidocaína en 6 mL de NaCl. Eyaculación química en potros: 300 mg EV 1 - 2 horas después de Imipramina",
+indicacion:"Epidural; eyaculación química",
+comentarios:""
+},
+
+{
+nombre:"Yoduro de Potasio",
+dosis:"2 mg/kg PO cada 24 h",
+indicacion:"Tratamiento antifúngico sistémico",
+comentarios:""
+},
+
+{
+nombre:"Yoduro de Sodio",
+dosis:"30 mg/kg EV cada 24 h",
+indicacion:"Terapia antifúngica sistémica",
+comentarios:""
+}
+
+
+
+
+
+
+
+
+
+
+];
+
+
+
+let favoritos =
+JSON.parse(localStorage.getItem("favoritos"))
+|| [];
+
+
+let recientes =
+JSON.parse(localStorage.getItem("recientes"))
+|| [];
+
+
+
+const resultado =
+document.getElementById("resultado");
+
+
+
+document
+.getElementById("busqueda")
+.addEventListener("input",buscar);
+
+
+
+function buscar(){
+
+
+let texto =
+document
+.getElementById("busqueda")
+.value
+.toLowerCase();
+
+
+
+let lista =
+medicamentos.filter(m=>
+
+m.nombre
+.toLowerCase()
+.includes(texto)
+
+);
+
+
+
+resultado.innerHTML =
+lista.map(m=>`
+
+<div class="tarjeta"
+onclick="abrirFicha('${m.nombre}')">
+
+<div class="titulo">
+${m.nombre}
+</div>
+
+<p>${m.letra}</p>
+
+</div>
+
+`).join("");
+
+}
+
+
+
+function abrirFicha(nombre){
+
+
+let m =
+medicamentos.find(x=>x.nombre===nombre);
+
+
+
+guardarReciente(nombre);
+
+
+
+let ficha =
+document.getElementById("ficha");
+
+
+
+ficha.style.display="block";
+
+
+
+ficha.innerHTML=
+
+`
+
+<div class="titulo">
+${m.nombre}
+</div>
+
+
+<div class="seccion">
+
+<b>DOSIS</b>
+
+<p>
+${m.dosis}
+</p>
+
+</div>
+
+
+
+<div class="seccion">
+
+<b>INDICACIÓN</b>
+
+<p>
+${m.indicacion}
+</p>
+
+</div>
+
+
+
+<div class="seccion">
+
+<b>COMENTARIOS</b>
+
+<p>
+${m.comentarios}
+</p>
+
+</div>
+
+
+<button class="favorito"
+onclick="agregarFavorito('${m.nombre}')">
+
+⭐ Agregar favorito
+
+</button>
+
+
+<button onclick="copiarFicha('${m.nombre}')">
+
+📋 Copiar ficha
+
+</button>
+
+
+`;
+
+}
+function agregarFavorito(nombre){
+
+if(!favoritos.includes(nombre)){
+
+favoritos.push(nombre);
+
+localStorage.setItem(
+"favoritos",
+JSON.stringify(favoritos)
+);
+
+alert("Guardado en favoritos ⭐");
+
+}
+
+}
+
+
+
+function mostrarFavoritos(){
+
+ocultarTodo();
+
+
+let extra =
+document.getElementById("extra");
+
+
+let lista =
+medicamentos.filter(m=>
+favoritos.includes(m.nombre)
+);
+
+
+
+extra.innerHTML = `
+
+<h2>⭐ Favoritos</h2>
+
+${lista.map(m=>`
+
+<div class="tarjeta"
+onclick="abrirFicha('${m.nombre}')">
+
+${m.nombre}
+
+</div>
+
+`).join("")}
+
+`;
+
+}
+
+
+
+function guardarReciente(nombre){
+
+
+recientes =
+recientes.filter(x=>x!==nombre);
+
+
+recientes.unshift(nombre);
+
+
+
+if(recientes.length>10){
+
+recientes.pop();
+
+}
+
+
+
+localStorage.setItem(
+"recientes",
+JSON.stringify(recientes)
+);
+
+
+}
+
+
+
+function mostrarRecientes(){
+
+ocultarTodo();
+
+
+let extra =
+document.getElementById("extra");
+
+
+
+extra.innerHTML=`
+
+<h2>🕒 Últimos vistos</h2>
+
+
+${recientes.map(n=>`
+
+<div class="tarjeta"
+onclick="abrirFicha('${n}')">
+
+${n}
+
+</div>
+
+`).join("")}
+
+`;
+
+}
+
+
+
+function mostrarProtocolos(){
+
+ocultarTodo();
+
+
+let extra =
+document.getElementById("extra");
+
+
+extra.innerHTML=
+
+`
+
+<h2>📋 Protocolos</h2>
+
+
+<div class="tarjeta">
+
+🐴 Cólico
+
+</div>
+
+
+<div class="tarjeta">
+
+👁 Oftalmología
+
+</div>
+
+
+<div class="tarjeta">
+
+🍼 Neonatología
+
+</div>
+
+
+<div class="tarjeta">
+
+🦷 Odontología
+
+</div>
+
+`;
+
+}
+
+
+
+
+function copiarFicha(nombre){
+
+
+let m =
+medicamentos.find(x=>x.nombre===nombre);
+
+
+
+let texto=
+
+`
+
+${m.nombre}
+
+
+DOSIS:
+
+${m.dosis}
+
+
+INDICACIÓN:
+
+${m.indicacion}
+
+
+COMENTARIOS:
+
+${m.comentarios}
+
+`;
+
+
+
+navigator.clipboard.writeText(texto);
+
+
+alert("Ficha copiada 📋");
+
+
+}
+
+
+
+
+function ocultarTodo(){
+
+document.getElementById("ficha")
+.style.display="none";
+
+
+document.getElementById("resultado")
+.innerHTML="";
+
+
+document.getElementById("extra")
+.innerHTML="";
+
+}
+
+
+
+
+function mostrarBusqueda(){
+
+ocultarTodo();
+
+document.getElementById("buscador")
+.style.display="block";
+
+}
+
+function ingresar(){
+
+const clave=document.getElementById("clave");
+const error=document.getElementById("error");
+
+if(clave.value==="Yibi2026"){
+
+    error.style.display="none";
+
+    localStorage.setItem("login","ok");
+
+    document.getElementById("login").style.opacity="0";
+
+    setTimeout(()=>{
+        document.getElementById("login").style.display="none";
+    },250);
+
+}else{
+
+    error.style.display="block";
+
+    clave.value="";
+
+    clave.focus();
+
+    clave.style.border="2px solid red";
+
+    setTimeout(()=>{
+        clave.style.border="1px solid #ccc";
+    },500);
+
+}
+
+}
+window.onload = function() {
+
+    if(localStorage.getItem("login")=="ok"){
+        document.getElementById("login").style.display="none";
+    }
+
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("service-worker.js");
+    }
+
+}
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,16 @@
+[
+  {
+    "nombre": "Omeprazol",
+    "letra": "O",
+    "dosis": "4 mg/kg PO cada 24 h",
+    "indicacion": "Úlceras gástricas",
+    "comentarios": "Inhibidor de bomba de protones"
+  },
+  {
+    "nombre": "Flunixin Meglumine",
+    "letra": "F",
+    "dosis": "1.1 mg/kg EV cada 12 h",
+    "indicacion": "AINE, dolor e inflamación",
+    "comentarios": "Puede ser ulcerogénico"
+  }
+]
