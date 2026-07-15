@@ -249,62 +249,38 @@ font-weight:bold;
 
 </div>
 
+<main class="app">
 
-<h1>🐴 Vademécum Equino</h1>
+    <header class="hero">
+        <img src="icon-192.png" alt="Logo">
+        <div>
+            <div class="eyebrow">Acceso privado</div>
+            <h1>Vademécum Equino</h1>
+            <p>Diego Molina Castro</p>
+        </div>
+    </header>
 
+    <div id="buscador">
+        <input
+            id="busqueda"
+            placeholder="Buscar medicamento..."
+            autocomplete="off"
+        >
+        <div id="resultado"></div>
+    </div>
 
-<div class="menu">
+    <div class="menu">
+        <button onclick="mostrarBusqueda()">🔍 Buscar medicamento</button>
+        <button onclick="mostrarFavoritos()">⭐ Favoritos</button>
+        <button onclick="mostrarRecientes()">🕒 Últimos vistos</button>
+        <button onclick="mostrarProtocolos()">📋 Protocolos</button>
+    </div>
 
-<button onclick="mostrarBusqueda()">
-🔍 Buscar medicamento
-</button>
+    <div id="ficha" class="ficha"></div>
 
+    <div id="extra"></div>
 
-<button onclick="mostrarFavoritos()">
-⭐ Favoritos
-</button>
-
-
-<button onclick="mostrarRecientes()">
-🕒 Últimos vistos
-</button>
-
-
-<button onclick="mostrarProtocolos()">
-📋 Protocolos
-</button>
-
-</div>
-
-
-
-<div id="buscador">
-
-
-<input 
-id="busqueda"
-placeholder="Buscar medicamento..."
->
-
-
-<div id="resultado"></div>
-
-
-</div>
-
-
-
-
-<div id="ficha" class="ficha"></div>
-
-
-
-<div id="extra"></div>
-
-
-
-<script>
-
+</main>
 
 let medicamentos = [
 
